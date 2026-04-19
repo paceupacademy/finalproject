@@ -99,42 +99,36 @@ sequenceDiagram
 10. Component Diagram (Static View)
 ```mermaid
 flowchart LR
-    Client[Client Applications (Postman, SoapUI, Browser)] --> Controller[Controllers (REST + SOAP Endpoints)]
-    Controller --> Service[Service Layer (Business Logic)]
-    Service --> Repository[Repository Layer (Spring Data JPA)]
+    Client["Client Applications"] --> Controller["Controllers REST SOAP"]
+    Controller --> Service["Service Layer"]
+    Service --> Repository["Repository Layer"]
     Repository --> Database[(MySQL Database)]
-    Controller --> Integration[Integration Layer]
-    Integration --> Excel[Excel Upload (Multipart Form)]
-    Integration --> PDF[PDF Generator (Base64 Encoding)]
-    Integration --> ExternalAPI[External REST APIs (User & Lesson Services)]
+
+    Controller --> Excel["Excel Upload"]
+    Controller --> PDF["PDF Generator"]
+    Controller --> External["External APIs"]
 ```
 ---
 11. Deployment Diagram (Infrastructure View)
 ```mermaid
-graph TD
-    Client[Client Devices (Postman, Browser, SoapUI)] -->|HTTP/HTTPS| SpringBootApp[Spring Boot Application (Student Management System)]
-    SpringBootApp -->|JPA/Hibernate| MySQL[(MySQL Database)]
-    SpringBootApp -->|REST API Calls| ExternalServices[External Services (User & Lesson APIs)]
-    SpringBootApp -->|File Upload| Excel[Excel Files (Student Data Upload)]
-    SpringBootApp -->|PDF Generation| PDF[PDF Reports (Base64 Encoding)]
-
-    subgraph Server
-        SpringBootApp
-        MySQL
-    end
+flowchart TD
+    Client["Client Devices"] -->|HTTP HTTPS| App["Spring Boot Application"]
+    App -->|JPA Hibernate| DB[(MySQL Database)]
+    App -->|REST Calls| External["External Services"]
+    App -->|File Upload| Excel["Excel Files"]
+    App -->|PDF Generation| PDF["PDF Reports"]
 ```
 ---
 12. Data Flow Diagram (Process View)
 ```mermaid
 flowchart LR
-    ExcelFile[Excel File Upload] -->|Bulk Student Data| Controller[REST Controller]
-    Controller --> Service[Service Layer]
-    Service --> Repository[Repository Layer]
+    ExcelFile["Excel File"] --> Controller["REST Controller"]
+    Controller --> Service["Service Layer"]
+    Service --> Repository["Repository Layer"]
     Repository --> Database[(MySQL Database)]
     Database --> Service
-    Service --> PDFGenerator[PDF Generator (Base64 Encoding)]
-    PDFGenerator --> SOAPClient[SOAP Client (Enterprise Systems)]
-    Service --> RESTClient[REST Client (Postman, Browser, Mobile Apps)]
+    Service --> PDFGen["PDF Generator"]
+    PDFGen --> Client["Client Applications"]
 ```
 ---
 13. Architectural Highlights
