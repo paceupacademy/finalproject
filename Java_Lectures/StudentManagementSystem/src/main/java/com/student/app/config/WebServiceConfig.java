@@ -11,6 +11,9 @@ import org.springframework.xml.xsd.SimpleXsdSchema;
 import org.springframework.xml.xsd.XsdSchema;
 import org.springframework.context.ApplicationContext;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * WebServiceConfig:
  * -----------------
@@ -35,6 +38,8 @@ import org.springframework.context.ApplicationContext;
 @Configuration
 public class WebServiceConfig {
 
+    private static final Logger logger = LogManager.getLogger(WebServiceConfig.class);
+
     /**
      * Registers MessageDispatcherServlet to handle SOAP requests.
      * - Maps all SOAP calls to /ws/*
@@ -43,9 +48,11 @@ public class WebServiceConfig {
      */
     @Bean
     public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(ApplicationContext context) {
+        logger.info("Registering MessageDispatcherServlet for SOAP requests at /ws/*");
         MessageDispatcherServlet servlet = new MessageDispatcherServlet();
         servlet.setApplicationContext(context);
         servlet.setTransformWsdlLocations(true);
+        logger.debug("MessageDispatcherServlet configured with ApplicationContext and WSDL location transformation");
         return new ServletRegistrationBean<>(servlet, "/ws/*");
     }
 
@@ -60,11 +67,13 @@ public class WebServiceConfig {
      */
     @Bean(name = "studentPdf")
     public DefaultWsdl11Definition defaultWsdl11Definition(XsdSchema studentSchema) {
+        logger.info("Creating DefaultWsdl11Definition for studentPdf service");
         DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
         wsdl11Definition.setPortTypeName("StudentPdfPort");
         wsdl11Definition.setLocationUri("/ws");
         wsdl11Definition.setTargetNamespace("http://student.com/pdf");
         wsdl11Definition.setSchema(studentSchema);
+        logger.debug("WSDL definition configured: PortType=StudentPdfPort, LocationUri=/ws, Namespace=http://student.com/pdf");
         return wsdl11Definition;
     }
     
@@ -75,9 +84,11 @@ public class WebServiceConfig {
      */
     @Bean
     public XsdSchema studentSchema() {
+        logger.info("Loading XSD schema from classpath: wsdl/student-report.xsd");
         return new SimpleXsdSchema(new ClassPathResource("wsdl/student-report.xsd"));
     }
 }
+
 
 /*
 Client (SOAP Request)

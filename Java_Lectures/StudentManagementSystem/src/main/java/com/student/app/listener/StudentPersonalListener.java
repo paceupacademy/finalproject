@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * StudentPersonalListener:
  * ------------------------
@@ -44,10 +47,13 @@ public class StudentPersonalListener {
     // Static repository reference used inside JPA listener
     private static StudentInsertLogRepository logRepo;
 
+    private static final Logger logger = LogManager.getLogger(StudentPersonalListener.class);
+
     // Inject repository into static field
     @Autowired
     public void init(StudentInsertLogRepository repo) {
         StudentPersonalListener.logRepo = repo;
+        logger.info("StudentInsertLogRepository injected into StudentPersonalListener");
     }
 
     /**
@@ -58,32 +64,19 @@ public class StudentPersonalListener {
      */
     @PostPersist
     public void afterInsert(StudentPersonal student) {
-        StudentInsertLog log = new StudentInsertLog(student.getStudentId(),student.getFirstName()+student.getLastName(),LocalDateTime.now());
-        logRepo.save(log);
+    	String message;
+        logger.info("PostPersist triggered for StudentPersonal with ID {}", student.getStudentId());
+
+        StudentInsertLog logEntry = new StudentInsertLog();
+        logEntry.setStudentId(student.getStudentId());
+        message="Inserted StudentPersonal record for " + student.getFirstName() + " " + student.getLastName();
+        logEntry.setTimestamp(LocalDateTime.now());
+
+        try {
+            logRepo.save(logEntry);
+            logger.debug("StudentInsertLog saved: {}", logEntry);
+        } catch (Exception e) {
+            logger.error("Failed to save StudentInsertLog for student ID {}: {}", student.getStudentId(), message, e);
+        }
     }
 }
-
-/*
-Save StudentPersonal Entity
-        │
-        ▼
-┌───────────────────────────────┐
-│ JPA EntityManager             │
-│ Persists StudentPersonal      │
-└───────────────┬───────────────┘
-                │
-                ▼
-┌───────────────────────────────┐
-│ StudentPersonalListener       │
-│ @PostPersist triggered        │
-└───────────────┬───────────────┘
-                │
-                ▼
-┌───────────────────────────────┐
-│ StudentInsertLogRepository    │
-│ Save log entry with timestamp │
-└───────────────┬───────────────┘
-                │
-                ▼
-Database → StudentPersonal + StudentInsertLog
-*/
