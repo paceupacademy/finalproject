@@ -15,6 +15,9 @@ import org.springframework.util.unit.DataSize;
 
 import jakarta.servlet.MultipartConfigElement;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * WebSecurityConfig:
  * ------------------
@@ -32,6 +35,8 @@ import jakarta.servlet.MultipartConfigElement;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
+    private static final Logger logger = LogManager.getLogger(WebSecurityConfig.class);
+
     /**
      * Defines in-memory users for authentication.
      * - "aishwarya" with role USER
@@ -42,15 +47,19 @@ public class WebSecurityConfig {
      */
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
+        logger.info("Initializing in-memory users for authentication");
+
         UserDetails user = User.withUsername("aishwarya")
                 .password("password")
                 .roles("USER")
                 .build();
+        logger.info("Created in-memory user: aishwarya with role USER");
 
         UserDetails admin = User.withUsername("admin")
                 .password("admin")
                 .roles("ADMIN")
                 .build();
+        logger.info("Created in-memory user: admin with role ADMIN");
 
         return new InMemoryUserDetailsManager(user, admin);
     }
@@ -67,6 +76,7 @@ public class WebSecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception { 
+        logger.info("Configuring HTTP security rules");
         http.csrf().disable()
             .authorizeHttpRequests()
                 .requestMatchers("/students/upload", "/login").permitAll()
@@ -74,6 +84,7 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated()
             .and()
             .httpBasic();
+        logger.debug("HTTP security rules configured successfully");
         return http.build();
     }
 
@@ -84,6 +95,7 @@ public class WebSecurityConfig {
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
+        logger.warn("Using NoOpPasswordEncoder (not secure, demo purposes only)");
         return NoOpPasswordEncoder.getInstance();
     }
     
@@ -95,9 +107,11 @@ public class WebSecurityConfig {
      */
     @Bean
     public MultipartConfigElement multipartConfigElement() {
+        logger.info("Configuring multipart file upload limits: Max 10 MB");
         MultipartConfigFactory factory = new MultipartConfigFactory();
         factory.setMaxFileSize(DataSize.ofMegabytes(10));
         factory.setMaxRequestSize(DataSize.ofMegabytes(10));
+        logger.debug("MultipartConfigElement created with 10 MB limits");
         return factory.createMultipartConfig();
     }
 }

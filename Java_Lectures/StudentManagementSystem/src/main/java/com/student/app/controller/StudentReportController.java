@@ -1,6 +1,8 @@
 package com.student.app.controller;
 
 import com.student.app.model.StudentPersonal;
+import com.student.app.generated.soap.StudentReportRequest;
+import com.student.app.generated.soap.StudentReportResponse;
 import com.student.app.model.StudentAcademic;
 import com.student.app.model.StudentAttendance;
 import com.student.app.model.StudentSports;
@@ -15,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * StudentReportController:
@@ -48,6 +53,8 @@ import java.util.Base64;
 @RequestMapping("/wsdl")
 public class StudentReportController {
 
+    private static final Logger logger = LogManager.getLogger(StudentReportController.class);
+
     // Repository beans injected by Spring Boot
     @Autowired
     private StudentPersonalRepository personalRepo;
@@ -69,6 +76,7 @@ public class StudentReportController {
                  produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<StudentReportResponse> generateStudentReport(@RequestBody StudentReportRequest request) {
         int studentId = request.getStudentId();
+        logger.info("POST /wsdl/studentReport - Generating report for student ID {}", studentId);
 
         // Fetch student data from repositories
         StudentPersonal personal = personalRepo.findById(studentId).orElse(null);
@@ -81,31 +89,47 @@ public class StudentReportController {
         report.append("Student Report for ID: ").append(studentId).append("\n\n");
 
         if (personal != null) {
+            logger.debug("Adding personal info for student ID {}", studentId);
             report.append("Name: ").append(personal.getFirstName()).append(" ").append(personal.getLastName()).append("\n");
             report.append("DOB: ").append(personal.getDob()).append("\n");
             report.append("Contact: ").append(personal.getContactNumber()).append("\n\n");
+        } else {
+            logger.warn("No personal info found for student ID {}", studentId);
         }
+
         if (academic != null) {
+            logger.debug("Adding academic info for student ID {}", studentId);
             report.append("Department: ").append(academic.getDepartment()).append("\n");
             report.append("Marks: ").append(academic.getAverageMarks()).append("\n\n");
+        } else {
+            logger.warn("No academic info found for student ID {}", studentId);
         }
+
         if (attendance != null) {
+            logger.debug("Adding attendance info for student ID {}", studentId);
             double percent = (attendance.getAttendedClasses() * 100.0) / attendance.getTotalClasses();
             report.append("Attendance: ").append(percent).append("%\n\n");
+        } else {
+            logger.warn("No attendance info found for student ID {}", studentId);
         }
+
         if (sports != null) {
+            logger.debug("Adding sports info for student ID {}", studentId);
             report.append("Sport: ").append(sports.getSportName()).append("\n");
             report.append("Level: ").append(sports.getLevel()).append("\n");
             report.append("Achievements: ").append(sports.getAchievements()).append("\n");
+        } else {
+            logger.warn("No sports info found for student ID {}", studentId);
         }
 
         // Simulate PDF with plain text encoded in Base64
         String encodedPdf = Base64.getEncoder().encodeToString(report.toString().getBytes());
+        logger.info("Report generated and encoded for student ID {}", studentId);
 
         // Build response object
         StudentReportResponse response = new StudentReportResponse();
         response.setStudentId(studentId);
-        response.setPdfData(encodedPdf);
+        response.setPdfBase64(encodedPdf);
 
         return ResponseEntity.ok(response);
     }
@@ -114,69 +138,4 @@ public class StudentReportController {
      * Request DTO for student report.
      * - Annotated with @XmlRootElement to support XML serialization/deserialization.
      */
-    @XmlRootElement
-    public static class StudentReportRequest {
-        private int studentId;
-        private String format;
-
-        public int getStudentId() { return studentId; }
-        public void setStudentId(int studentId) { this.studentId = studentId; }
-
-        public String getFormat() { return format; }
-        public void setFormat(String format) { this.format = format; }
-    }
-
-    /**
-     * Response DTO for student report.
-     * - Contains studentId and Base64 encoded PDF data.
-     * - Returned as XML because of produces = APPLICATION_XML_VALUE.
-     */
-    public static class StudentReportResponse {
-        private int studentId;
-        private String pdfData;
-
-        public int getStudentId() { return studentId; }
-        public void setStudentId(int studentId) { this.studentId = studentId; }
-
-        public String getPdfData() { return pdfData; }
-        public void setPdfData(String pdfData) { this.pdfData = pdfData; }
-    }
 }
-
-/*
-Client (SOAP/XML Request)
-			│
-			▼
-┌───────────────────────────────┐
-│ DispatcherServlet (Spring MVC)│
-│ Central servlet for requests  │
-└───────────────┬───────────────┘
-        		│
-        		▼
-┌───────────────────────────────┐
-│ StudentReportController        │
-│ @PostMapping("/studentReport") │
-│ Method invoked                 │
-└───────────────┬───────────────┘
-        		│
-        		▼
-┌───────────────────────────────┐
-│ Repositories (JPA)            │
-│ Fetch student data from DB    │
-└───────────────┬───────────────┘
-        		│
-        		▼
-┌────────────────────────────────┐
-│ Build Report String            │
-│ Encode as Base64 "PDF"         │
-└────────────────┬───────────────┘
-        		 │
-        		 ▼
-┌───────────────────────────────┐
-│ ResponseEntity<StudentReport> │
-│ Serialized to XML             │
-└───────────────────────────────┘
-        		│
-        		▼
-	Client (SOAP/XML Response)
-*/

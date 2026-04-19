@@ -15,6 +15,7 @@
     <xs:element name="StudentReportResponse">
         <xs:complexType>
             <xs:sequence>
+            	<xs:element name="studentId" type="xs:int"/>
                 <xs:element name="pdfBase64" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>

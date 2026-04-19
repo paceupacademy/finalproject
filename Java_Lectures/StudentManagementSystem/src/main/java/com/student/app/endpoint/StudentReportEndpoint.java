@@ -9,6 +9,9 @@ import org.springframework.ws.server.endpoint.annotation.*;
 import java.util.Base64;
 import java.util.Objects;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * StudentReportEndpoint:
  * ----------------------
@@ -45,6 +48,8 @@ public class StudentReportEndpoint {
 
     private final StudentService studentService;
 
+    private static final Logger logger = LogManager.getLogger(StudentReportEndpoint.class);
+
     @Autowired
     public StudentReportEndpoint(StudentService studentService) {
         this.studentService = studentService;
@@ -60,26 +65,30 @@ public class StudentReportEndpoint {
     @ResponsePayload
     public StudentReportResponse getStudentReport(@RequestPayload StudentReportRequest request) {
         int studentId = request.getStudentId();
+        logger.info("SOAP request received for student report, ID={}", studentId);
 
-        StudentReportResponse response = new StudentReportResponse();
-
-        // Validate input
-        if (Objects.isNull(studentId)) {
-            response.setPdfBase64("ERROR: studentId is null.");
-            return response;
-        }
-
-        // Delegate to service layer
         byte[] pdfBytes = studentService.generateStudentReportPDF(studentId);
 
-        // Encode PDF as Base64 string
-        String base64EncodedPdf = Base64.getEncoder().encodeToString(pdfBytes);
+        if (Objects.isNull(pdfBytes)) {
+            logger.error("Failed to generate PDF report for student ID {}", studentId);
+            StudentReportResponse errorResponse = new StudentReportResponse();
+            errorResponse.setStudentId(studentId);
+            errorResponse.setPdfBase64("ERROR: Could not generate report");
+            return errorResponse;
+        }
 
-        // Build SOAP response
-        response.setPdfBase64(base64EncodedPdf);
+        String encodedPdf = Base64.getEncoder().encodeToString(pdfBytes);
+        logger.debug("PDF report generated and encoded for student ID {}", studentId);
+
+        StudentReportResponse response = new StudentReportResponse();
+        response.setStudentId(studentId);
+        response.setPdfBase64(encodedPdf);
+
+        logger.info("SOAP response prepared successfully for student ID {}", studentId);
         return response;
     }
 }
+
 
 /*
 SOAP Client Request (XML)

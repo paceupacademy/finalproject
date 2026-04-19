@@ -10,6 +10,9 @@ import org.springframework.http.MediaType;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * StudentController:
  * ------------------
@@ -48,9 +51,10 @@ public class StudentController {
      * Automatically injects required dependencies into class.
      * Eliminates the need for object creation
      */
-	
     @Autowired
     private StudentService studentService;
+
+    private static final Logger logger = LogManager.getLogger(StudentController.class);
 
     /**
      * GET endpoint: Fetch all students with full info.
@@ -58,7 +62,10 @@ public class StudentController {
      */
     @GetMapping("/")
     public List<StudentFullInfoDTO> getAllStudents() {
-        return studentService.getFullInfo();
+        logger.info("GET /students/ - Fetching all students with full info");
+        List<StudentFullInfoDTO> students = studentService.getFullInfo();
+        logger.debug("Fetched {} students", students.size());
+        return students;
     }
 
     /**
@@ -68,8 +75,15 @@ public class StudentController {
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
-        studentService.saveStudentsFromExcel(file);
-        return ResponseEntity.ok("Excel data uploaded successfully.");
+        logger.info("POST /students/upload - Uploading Excel file: {}", file.getOriginalFilename());
+        try {
+            studentService.saveStudentsFromExcel(file);
+            logger.info("Excel data uploaded successfully");
+            return ResponseEntity.ok("Excel data uploaded successfully.");
+        } catch (Exception e) {
+            logger.error("Error uploading Excel file: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("Failed to upload Excel data.");
+        }
     }
 
     /**
@@ -79,6 +93,7 @@ public class StudentController {
      */
     @PostMapping("/personal")
     public StudentPersonal savePersonal(@RequestBody StudentPersonal personal) {
+        logger.info("POST /students/personal - Saving personal info for student ID {}", personal.getStudentId());
         return studentService.saveStudentPersonal(personal);
     }
 
@@ -88,6 +103,7 @@ public class StudentController {
      */
     @PostMapping("/academic")
     public StudentAcademic saveAcademic(@RequestBody StudentAcademic academic) {
+        logger.info("POST /students/academic - Saving academic info for student ID {}", academic.getStudentId());
         return studentService.saveStudentAcademic(academic);
     }
 
@@ -97,6 +113,7 @@ public class StudentController {
      */
     @PostMapping("/attendance")
     public StudentAttendance saveAttendance(@RequestBody StudentAttendance attendance) {
+        logger.info("POST /students/attendance - Saving attendance info for student ID {}", attendance.getStudentId());
         return studentService.saveStudentAttendance(attendance);
     }
 
@@ -106,6 +123,7 @@ public class StudentController {
      */
     @PostMapping("/sports")
     public StudentSports saveSports(@RequestBody StudentSports sports) {
+        logger.info("POST /students/sports - Saving sports info for student ID {}", sports.getStudentId());
         return studentService.saveStudentSports(sports);
     }
 
@@ -115,7 +133,10 @@ public class StudentController {
      */
     @GetMapping("/personal")
     public List<StudentPersonal> getAllPersonal() {
-        return studentService.getAllStudentPersonal();
+        logger.info("GET /students/personal - Fetching all personal records");
+        List<StudentPersonal> personals = studentService.getAllStudentPersonal();
+        logger.debug("Fetched {} personal records", personals.size());
+        return personals;
     }
 
     /**
@@ -124,9 +145,17 @@ public class StudentController {
      */
     @GetMapping("/personal/{id}")
     public StudentPersonal getPersonalById(@PathVariable int id) {
-        return studentService.getStudentPersonalById(id);
+        logger.info("GET /students/personal/{} - Fetching personal record", id);
+        StudentPersonal personal = studentService.getStudentPersonalById(id);
+        if (personal == null) {
+            logger.warn("No personal record found for student ID {}", id);
+        } else {
+            logger.debug("Fetched personal record for student ID {}", id);
+        }
+        return personal;
     }
 }
+
 
 /*
 Client (HTTP Request)

@@ -1,164 +1,227 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<groupId>com.student</groupId>
-	<artifactId>student-management</artifactId>
-	<version>1.0.1</version>
-	<name>Student Management System</name>
-	<description>Spring Boot MVC Application with Excel, WSDL, REST, JPA</description>
+    <!-- ===========================
+         Project Metadata
+         =========================== -->
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.student</groupId>
+    <artifactId>student-management</artifactId>
+    <version>1.0.1</version>
+    <name>Student Management System</name>
+    <description>Spring Boot MVC Application with Excel, WSDL, REST, JPA</description>
 
-	<properties>
-		<java.version>17</java.version>
-	</properties>
-	
-	
-	<dependencies>
-		<!-- Spring Boot Starter Web 
-		Used to build for REST API / Web Applications-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-			<version>3.5.3</version>
-		</dependency>
+    <!-- ===========================
+         Properties
+         
+         Define reusable values like Java version.
+         =========================== -->
+    <properties>
+        <java.version>17</java.version>
+    </properties>
 
-		<!-- Spring Boot Starter Data JPA 
-		Database Operations using JPA/Hibernate-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-			<version>3.5.3</version>
-		</dependency>
+    <!-- ===========================
+         Dependencies
+         
+         External libraries required by the project.
+         =========================== -->
+    <dependencies>
 
-		<!-- MySQL Connector -->
-		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
-			<version>9.3.0</version>
-			<scope>runtime</scope>
-		</dependency>
+        <!-- Spring Boot Starter Web 
+             Provides REST API and web application support.
+             Excludes default logging (Logback) to use Log4j2 instead. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>3.5.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-		<!-- Spring Boot Starter Security
-		Authentication and Authorization -->
-		
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-			<version>3.5.3</version>
-		</dependency>
+        <!-- Spring Boot Starter Data JPA 
+             Provides ORM support using Hibernate. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>3.5.3</version>
+        </dependency>
 
-		<!-- Validation
-		Input Validation -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
-			<version>3.5.3</version>
-		</dependency>
+        <!-- MySQL Connector 
+             JDBC driver for MySQL database. -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.3.0</version>
+            <scope>runtime</scope>
+        </dependency>
 
-		<!-- Apache POI for Excel -->
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-ooxml</artifactId>
-			<version>5.2.3</version>
-		</dependency>
+        <!-- Spring Boot Starter Security 
+             Provides authentication and authorization. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>3.5.3</version>
+        </dependency>
 
-		<!-- iText for PDF generation -->
-		<dependency>
-			<groupId>com.itextpdf</groupId>
-			<artifactId>itextpdf</artifactId>
-			<version>5.5.13.2</version>
-		</dependency>
+        <!-- Validation 
+             Bean validation (JSR-380) for input checks. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+            <version>3.5.3</version>
+        </dependency>
 
-		<!-- XML Binding (Java -> XML -> Java) Marshalling and Unmarshalling -->
-		<dependency>
-			<groupId>jakarta.xml.bind</groupId>
-			<artifactId>jakarta.xml.bind-api</artifactId>
-			<version>4.0.2</version>
-		</dependency>
+        <!-- Apache POI 
+             For reading/writing Excel files. -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.3</version>
+        </dependency>
 
-		<!-- JAXB Runtime XML Processing-->
-		<dependency>
-			<groupId>org.glassfish.jaxb</groupId>
-			<artifactId>jaxb-runtime</artifactId>
-			<version>4.0.5</version>
-		</dependency>
+        <!-- iText 
+             For generating PDF reports. -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13.2</version>
+        </dependency>
 
-		<!-- Needed only for annotation processing during compile -->
-		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
-			<version>1.1.1</version>
-		</dependency>
+        <!-- JAXB API 
+             For XML binding (Java ↔ XML). -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.2</version>
+        </dependency>
 
-		<!-- Commons FileUpload for multipart support -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
-			<version>2.0.0-M4</version>
-		</dependency>
-		
-		<!-- Spring Web Services SOAP web services -->
-		<dependency>
-			<groupId>org.springframework.ws</groupId>
-			<artifactId>spring-ws-core</artifactId>
-			<version>4.1.0</version>
-		</dependency>
-		
-		<!-- Reading/parsing WSDL files-->
-		<dependency>
-			<groupId>wsdl4j</groupId>
-			<artifactId>wsdl4j</artifactId>
-			<version>1.6.3</version>
-		</dependency>
+        <!-- JAXB Runtime 
+             Provides runtime support for XML processing. -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>4.0.5</version>
+        </dependency>
 
-	</dependencies>
+        <!-- Activation Framework 
+             Required for JAXB and XML processing. -->
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
 
-	<build>
-		<plugins>
-			<!-- Generate Java classes from XSD/WSDL
-			Converting XML structure to Java POJO-->
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>3.5.3</version>
-				<configuration>
-					<mainClass>com.student.StudentApp</mainClass>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jaxb2-maven-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<id>generate-xjc</id>
-						<goals>
-							<goal>xjc</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>
-									${project.basedir}/src/main/resources/wsdl</source>
-							</sources>
-							<outputDirectory>
-								${project.build.directory}/generated-sources/xjc</outputDirectory>
-							<packageName>com.student.app.generated.soap</packageName>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.10.1</version>
-				<configuration>
-					<compilerArgs>
-						<arg>-parameters</arg>
-					</compilerArgs>
-					<release>17</release>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+        <!-- Commons FileUpload 
+             For handling multipart file uploads. -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
+            <version>2.0.0-M4</version>
+        </dependency>
+
+        <!-- Spring Web Services 
+             For SOAP web service support. -->
+        <dependency>
+            <groupId>org.springframework.ws</groupId>
+            <artifactId>spring-ws-core</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+
+        <!-- WSDL4J 
+             For reading/parsing WSDL files. -->
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+
+        <!-- Log4j2 Starter 
+             Logging framework replacing Logback. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+    </dependencies>
+
+    <!-- ===========================
+         Dependency Management
+         
+         Ensures consistent Log4j2 versions.
+         =========================== -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-bom</artifactId>
+                <version>2.24.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- ===========================
+         Build Plugins
+         
+         Plugins for compiling, packaging, and generating code.
+         =========================== -->
+    <build>
+        <plugins>
+
+            <!-- Spring Boot Maven Plugin 
+                 Enables running and packaging Spring Boot apps. -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.5.3</version>
+                <configuration>
+                    <mainClass>com.student.StudentApp</mainClass>
+                </configuration>
+            </plugin>
+
+            <!-- JAXB2 Maven Plugin 
+                 Generates Java classes from XSD/WSDL files. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-xjc</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/src/main/resources/wsdl</source>
+                            </sources>
+                            <outputDirectory>${project.build.directory}/generated-sources/xjc</outputDirectory>
+                            <packageName>com.student.app.generated.soap</packageName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Maven Compiler Plugin 
+                 Compiles Java source code with Java 17. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                    <release>17</release>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
