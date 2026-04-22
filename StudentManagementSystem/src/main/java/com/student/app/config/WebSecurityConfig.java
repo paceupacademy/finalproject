@@ -49,8 +49,8 @@ public class WebSecurityConfig {
     public InMemoryUserDetailsManager userDetailsService() {
         logger.info("Initializing in-memory users for authentication");
 
-        UserDetails user = User.withUsername("aishwarya")
-                .password("password")
+        UserDetails user = User.withUsername("user")
+                .password("user")
                 .roles("USER")
                 .build();
         logger.info("Created in-memory user: aishwarya with role USER");
