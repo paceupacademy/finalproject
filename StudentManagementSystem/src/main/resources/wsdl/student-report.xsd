@@ -26,5 +26,5 @@
 <!-- XSD define XML format
 Request one integer input: studentId
 Response one string returned : pdfBase64
-Base54 : encode binary files as text
+Base64 : encode binary files as text
  -->

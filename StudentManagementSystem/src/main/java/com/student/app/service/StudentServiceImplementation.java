@@ -35,9 +35,7 @@ public class StudentServiceImplementation implements StudentService {
     @Autowired
     private StudentJoinRepository joinRepo;
 
-    // In-memory map for student cache
-    private Map<Integer, StudentPersonal> studentCache = new HashMap<>();
-
+    
     @Override
     public void saveStudentsFromExcel(MultipartFile file) {
         logger.info("Processing Excel file: {}", file.getOriginalFilename());
@@ -56,8 +54,9 @@ public class StudentServiceImplementation implements StudentService {
                 s.setStudentId((int) row.getCell(0).getNumericCellValue());
                 s.setFirstName(row.getCell(1).getStringCellValue());
                 s.setLastName(row.getCell(2).getStringCellValue());
-                s.setDob(row.getCell(3).getStringCellValue());
-                s.setContactNumber(row.getCell(4).getStringCellValue());
+                s.setEmail(row.getCell(3).getStringCellValue());
+                s.setGender(row.getCell(4).getStringCellValue());
+                s.setDob(row.getCell(5).getStringCellValue());
                 personalList.add(s);
                 logger.trace("Parsed StudentPersonal: {}", s);
             }
@@ -130,7 +129,6 @@ public class StudentServiceImplementation implements StudentService {
     @Override
     public StudentPersonal saveStudentPersonal(StudentPersonal personal) {
         logger.info("Saving StudentPersonal with ID {}", personal.getStudentId());
-        studentCache.put(personal.getStudentId(), personal);
         return personalRepo.save(personal);
     }
 
@@ -194,11 +192,14 @@ public class StudentServiceImplementation implements StudentService {
                     (String) row[1],
                     (String) row[2],
                     (String) row[3],
-                    (Double) row[4],
-                    (Integer) row[5],
-                    (Integer) row[6],
-                    (String) row[7],
-                    (String) row[8]
+                    (String) row[4],
+                    (String) row[5],
+                    (String) row[6],
+                    (Double) row[7],
+                    (Integer) row[8],
+                    (Integer) row[9],
+                    (String) row[10],
+                    (String) row[11]
             );
             result.add(dto);
             logger.trace("Constructed StudentFullInfoDTO: {}", dto);
@@ -209,7 +210,7 @@ public class StudentServiceImplementation implements StudentService {
     }
 
     @Override
-    public byte[] generateStudentReportPDF(int studentId) {
+	public byte[] generateStudentReportPDF(int studentId) {
         logger.info("Generating PDF report for student ID {}", studentId);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -231,8 +232,10 @@ public class StudentServiceImplementation implements StudentService {
                 document.add(new Paragraph("Personal Info:"));
                 document.add(new Paragraph("ID: " + personal.getStudentId()));
                 document.add(new Paragraph("Name: " + personal.getFirstName() + " " + personal.getLastName()));
+                document.add(new Paragraph("Gender: "+personal.getGender()));
+                document.add(new Paragraph("Email: "+personal.getEmail()));
                 document.add(new Paragraph("DOB: " + personal.getDob()));
-                document.add(new Paragraph("Contact: " + personal.getContactNumber()));
+                
                 document.add(new Paragraph(" "));
             } else {
                 logger.warn("No personal info found for student ID {}", studentId);

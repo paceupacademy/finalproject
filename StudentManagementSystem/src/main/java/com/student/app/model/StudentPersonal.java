@@ -11,17 +11,20 @@ public class StudentPersonal {
 
     private String firstName;
     private String lastName;
+    private String email;
+    private String gender;
     private String dob;
-    private String contactNumber;
 
     public StudentPersonal() {}
 
-    public StudentPersonal(int studentId, String firstName, String lastName, String dob, String contactNumber) {
+    public StudentPersonal(int studentId, String firstName, String lastName, String email, String gender, String dob) {
         this.studentId = studentId;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.email = email;
+        this.gender = gender;
         this.dob = dob;
-        this.contactNumber = contactNumber;
+        
     }
 
     // Getters and Setters
@@ -34,9 +37,23 @@ public class StudentPersonal {
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getDob() { return dob; }
+    public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getDob() { return dob; }
     public void setDob(String dob) { this.dob = dob; }
 
-    public String getContactNumber() { return contactNumber; }
-    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
 }

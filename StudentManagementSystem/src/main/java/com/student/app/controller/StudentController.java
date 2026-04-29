@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.util.List;
@@ -142,17 +143,21 @@ public class StudentController {
     /**
      * GET endpoint: Fetch one student's personal record by ID.
      * URL: GET /students/personal/{id}
+     * /personal/{id} -> Path Variable
+     * personal?id=45 -> Query Parameter (@RequestParam)
      */
     @GetMapping("/personal/{id}")
-    public StudentPersonal getPersonalById(@PathVariable int id) {
+    public ResponseEntity<?> getPersonalById(@PathVariable int id) {
         logger.info("GET /students/personal/{} - Fetching personal record", id);
         StudentPersonal personal = studentService.getStudentPersonalById(id);
         if (personal == null) {
-            logger.warn("No personal record found for student ID {}", id);
+            logger.warn("No personal record found for student ID {}", id);            
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No personal record found for student ID: "+id);
         } else {
             logger.debug("Fetched personal record for student ID {}", id);
+            return ResponseEntity.ok(personal);
         }
-        return personal;
+
     }
 }
 
