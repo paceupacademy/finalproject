@@ -60,9 +60,11 @@ public class WebServiceConfig {
      * Defines WSDL 1.1 configuration.
      * - PortTypeName: Logical name for client port.
      * - LocationUri: Endpoint where SOAP service is available (/ws).
-     * - TargetNamespace: Unique identifier for the service.
+     * - TargetNamespace: Unique identifier for the service. This defines for WSDL namespace
      * - Schema: XML structure defined by XSD.
-     *
+     * All URLs are URI but not all URIs are URLs
+     * URI: mailto:abc@gmail.com
+     * URL: https://localhost.com
      * WSDL will be available at: /ws/studentPdf.wsdl
      */
     @Bean(name = "studentPdf")

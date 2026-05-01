@@ -44,6 +44,7 @@ import org.apache.logging.log4j.Logger;
 public class StudentReportEndpoint {
 
     // Namespace URI defines unique identifier for SOAP service
+	//Actual XML message namespace
     private static final String NAMESPACE_URI = "http://student.com/report";
 
     private final StudentService studentService;
